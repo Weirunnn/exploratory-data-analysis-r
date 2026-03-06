@@ -1,0 +1,106 @@
+---
+title: "Project 1- Weiran"
+author: "Weiran Zeng"
+date: "2024-10-16"
+output: html_document
+---
+The website I used:https://archive.ics.uci.edu/dataset/186/wine+quality
+
+Research Question:
+Does the type of wine (red or white) affect the quality score of the wine?
+
+Quantitative Variable (Response Variable - Wine Quality Score):
+This variable is judged numerically. In the Wine Quality dataset, the wine quality score is usually given on a scale from 0 to 10.
+Wine tasters or experts assess various factors such as taste, aroma, body, and overall balance of the wine, and then assign it a numeric rating. The higher the score, the better the perceived quality of the wine.
+The goal of my analysis is to see if this numerical score (the "response") is influenced by the type of wine (red or white).
+
+Categorical Variable (Explanatory Variable - Wine Type):
+This variable is judged by its category or group. In this case, there are two categories: red wine and white wine.
+These categories represent different types of wine, each with unique characteristics such as grape variety, fermentation process, and aging method.
+My analysis will test whether the type of wine (red or white) has a significant effect on the wine's quality score (the response variable).
+
+```{r}
+red_wine <- read.csv("Desktop/winequality-red.csv", sep = ";")
+white_wine <- read.csv("Desktop/winequality-white.csv", sep = ";")
+
+red_wine$quality <- as.numeric(as.character(red_wine$quality))
+white_wine$quality <- as.numeric(as.character(white_wine$quality))
+
+mean_red_quality <- mean(red_wine$quality, na.rm = TRUE)
+var_red_quality <- var(red_wine$quality, na.rm = TRUE)
+
+mean_white_quality <- mean(white_wine$quality, na.rm = TRUE)
+var_white_quality <- var(white_wine$quality, na.rm = TRUE)
+
+print(paste("Mean quality score for red wine:", mean_red_quality))
+print(paste("Variance of quality score for red wine:", var_red_quality))
+
+print(paste("Mean quality score for white wine:", mean_white_quality))
+print(paste("Variance of quality score for white wine:", var_white_quality))
+```
+The variance in the wine quality scores seems moderate—neither very large nor very small.
+Red Wine:Variance: 0.65
+White Wine:Variance: 0.78
+
+Small variance would indicate that most wines have very similar quality scores, clustering closely around the mean.
+Large variance would mean that the quality scores are spread out, indicating a wide range of wine qualities.
+Since the variances for both red and white wines are around 0.65 to 0.78, this suggests that the quality scores are somewhat consistent but with some variation. In other words, while many wines tend to have similar quality ratings, there are still noticeable differences in quality within each type (red or white).
+
+Given that both red and white wines can be produced in different regions, using different processes, grapes, and aging techniques, a moderate variance is expected. Wines within the same type (red or white) can vary in quality based on these factors, but overall, their scores are not too far apart.
+
+If wines to have highly consistent quality ratings, then this variance might seem larger than expected.Conversely, if my anticipated a wide range of quality differences (due to factors like region, brand, or production method), the variance might seem smaller than expected.
+
+```{r}
+red_wine$type <- "red"
+white_wine$type <- "white"
+wine_data <- rbind(red_wine, white_wine)
+
+model <- lm(quality ~ type, data = wine_data)
+
+summary(model)
+
+model_values <- fitted(model)
+model_residuals <- residuals(model)
+
+print("Model Values (Fitted Values):")
+print(model_values)
+
+print("Residuals:")
+print(model_residuals)
+
+```
+
+```{r}
+total_variance <- var(wine_data$quality)
+
+model <- lm(quality ~ type, data = wine_data)
+
+residual_variance <- var(residuals(model))
+
+r_squared <- 1 - (residual_variance / total_variance)
+
+print(paste("Total variance in wine quality:", total_variance))
+print(paste("Residual variance (unexplained by wine type):", residual_variance))
+print(paste("Proportion of variance explained by wine type (R-squared):", r_squared))
+
+```
+
+If the explained variance ratio is close to 1, it means that wine type explains most of the variation in wine quality scores. If the explained variance ratio is low, it means that wine type does not account for much of the variability in wine quality, and there are other factors influencing the quality scores.
+
+Total variance in wine quality is 0.7626, but after accounting for wine type (red or white), the residual variance is still 0.7517. This means that wine type explains only 1.42% of the total variability in wine quality scores.So, wine type (red or white) has a very small effect on the variability of wine quality. Most of the variation in quality scores is due to other factors not accounted for in this model.
+
+
+Conclusion：
+Based on the analysis, the categorical variable (wine type: red or white) has a very small effect on the quantitative variable (wine quality score). 
+
+Model Values (Fitted Values): These are the predicted quality scores based on the model.  Since the R-squared value is low, the predictions will be close to the mean value of the quality scores for red and white wines, and the model doesn’t capture much variation.
+
+Residuals: These are the differences between the actual wine quality scores and the predicted values (model values).  Since the residual variance is still large, it means that most of the variation in quality scores is not explained by wine type, and the residuals remain substantial.
+
+Thus, wine type alone is not a strong predictor of wine quality, and additional factors should be considered for better prediction of wine quality.
+
+The total variance in wine quality is 0.7626.
+The residual variance (unexplained by wine type) is 0.7517.
+The R-squared value (proportion of variance explained by wine type) is 0.0142, or 1.42%.
+
+This means that only 1.42% of the total variability in wine quality is explained by whether the wine is red or white. The remaining 98.58% of the variability in wine quality is due to other factors not captured by this model. Therefore, wine type has a minimal effect on wine quality.
